@@ -1,9 +1,17 @@
 #include <iostream>
-#include <SDL2/SDL.h>
+#include "./Game/Game.h"
 
 using namespace std;
 
-int main() {
-    cout << "Hello, World!" << endl;
+int main(){
+    Game game;
+
+    if (!game.init("PACMAN", 1366, 768)){
+        cout << "Failed to initialize game!" << endl;
+        return -1;
+    }
+
+    game.run();
+
     return 0;
 }
