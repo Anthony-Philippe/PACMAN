@@ -1,7 +1,16 @@
 #include "Game.h"
+#include "../Menu/Menu.h"
+#include "../Menu/OptionsMenu.h"
 #include <iostream>
+#include <filesystem>
 
-Game::Game(): isRunning(false), window(nullptr), renderer(nullptr), backgroundTexture(nullptr){}
+std::string getProjectRoot(){
+    return std::filesystem::current_path().parent_path().parent_path().string();
+}
+
+Game::Game() : isRunning(false), showMainMenu(true), window(nullptr), renderer(nullptr), backgroundTexture(nullptr),
+               menu(nullptr), optionsMenu(nullptr){}
+
 
 Game::~Game(){
     clean();
@@ -30,6 +39,11 @@ bool Game::init(const char* title, int width, int height){
         return false;
     }
 
+    if (TTF_Init() == -1){
+        std::cerr << "TTF_Init Error: " << TTF_GetError() << std::endl;
+        return false;
+    }
+
     SDL_Surface* bgSurface = IMG_Load("../assets/images/HOME_bg.jpg");
     if (bgSurface == nullptr){
         std::cerr << "IMG_Load Error: " << IMG_GetError() << std::endl;
@@ -41,6 +55,18 @@ bool Game::init(const char* title, int width, int height){
 
     if (backgroundTexture == nullptr){
         std::cerr << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
+    menu = new Menu(renderer);
+    if (!menu->init()){
+        std::cerr << "Menu initialization failed" << std::endl;
+        return false;
+    }
+
+    optionsMenu = new OptionsMenu(renderer);
+    if (!optionsMenu->init()){
+        std::cerr << "OptionsMenu initialization failed" << std::endl;
         return false;
     }
 
@@ -57,11 +83,11 @@ void Game::run(){
 }
 
 void Game::handleEvents(){
-    SDL_Event event;
-    while (SDL_PollEvent(&event)){
-        if (event.type == SDL_QUIT){
-            isRunning = false;
-        }
+    if (showMainMenu){
+        menu->handleEvents(isRunning, showMainMenu);
+    }
+    else{
+        optionsMenu->handleEvents(isRunning, showMainMenu);
     }
 }
 
@@ -72,14 +98,23 @@ void Game::update(){
 void Game::render(){
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, backgroundTexture, nullptr, nullptr);
-
+    if (showMainMenu){
+        menu->render();
+    }
+    else{
+        optionsMenu->render();
+    }
     SDL_RenderPresent(renderer);
 }
 
+
 void Game::clean(){
-    SDL_DestroyTexture(backgroundTexture);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+    if (backgroundTexture) SDL_DestroyTexture(backgroundTexture);
+    if (renderer) SDL_DestroyRenderer(renderer);
+    if (window) SDL_DestroyWindow(window);
+    if (menu) delete menu;
+    if (optionsMenu) delete optionsMenu;
+    TTF_Quit();
     IMG_Quit();
     SDL_Quit();
 }
