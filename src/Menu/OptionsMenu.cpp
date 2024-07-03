@@ -26,13 +26,13 @@ bool OptionsMenu::init(){
     int windowWidth = 1366;
     int windowHeight = 768;
 
-    renderText("Games rules", font, white, &gameRulesButtonTexture, &gameRulesButtonRect, windowWidth / 2,
+    renderText("games rules", font, white, &gameRulesButtonTexture, &gameRulesButtonRect, windowWidth / 2,
                windowHeight / 2 - 75);
-    renderText("Statistics", font, white, &statisticsButtonTexture, &statisticsButtonRect, windowWidth / 2,
+    renderText("statistics", font, white, &statisticsButtonTexture, &statisticsButtonRect, windowWidth / 2,
                windowHeight / 2 - 25);
-    renderText("How to play", font, white, &howToPlayButtonTexture, &howToPlayButtonRect, windowWidth / 2,
+    renderText("how to play", font, white, &howToPlayButtonTexture, &howToPlayButtonRect, windowWidth / 2,
                windowHeight / 2 + 25);
-    renderText("Back", font, white, &backButtonTexture, &backButtonRect, windowWidth / 2, windowHeight / 2 + 75);
+    renderText("back", font, white, &backButtonTexture, &backButtonRect, windowWidth / 2, windowHeight / 2 + 75);
 
     TTF_CloseFont(font);
 

@@ -24,20 +24,21 @@ bool Menu::init(){
     int windowWidth = 1366;
     int windowHeight = 768;
 
-    renderText("New Game", font, white, &newGameButtonTexture, &newGameButtonRect, windowWidth / 2,
-               windowHeight / 2 - 50);
-    renderText("Options", font, white, &optionsButtonTexture, &optionsButtonRect, windowWidth / 2, windowHeight / 2);
-    renderText("Quit", font, white, &quitButtonTexture, &quitButtonRect, windowWidth / 2, windowHeight / 2 + 50);
+    renderText("new game", font, white, &newGameButtonTexture, &newGameButtonRect, windowWidth / 2,
+               windowHeight / 2);
+    renderText("options", font, white, &optionsButtonTexture, &optionsButtonRect, windowWidth / 2,
+               windowHeight / 2 + 50);
+    renderText("quit", font, white, &quitButtonTexture, &quitButtonRect, windowWidth / 2, windowHeight / 2 + 100);
 
     TTF_CloseFont(font);
 
-    TTF_Font* titleFont = TTF_OpenFont((getProjectRoot() + "/assets/fonts/crackman.ttf").c_str(), 48);
+    TTF_Font* titleFont = TTF_OpenFont((getProjectRoot() + "/assets/fonts/crackman.ttf").c_str(), 64);
     if (!titleFont){
         std::cerr << "Failed to load title font: " << TTF_GetError() << std::endl;
         return false;
     }
 
-    renderText("PACMAN", titleFont, white, &titleTexture, &titleRect, windowWidth / 2, 100);
+    renderText("PAC-MAN", titleFont, white, &titleTexture, &titleRect, windowWidth / 2, 100);
 
     TTF_CloseFont(titleFont);
 
