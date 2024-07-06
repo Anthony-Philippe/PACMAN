@@ -1,34 +1,54 @@
+// Menu.h
 #ifndef MENU_H
 #define MENU_H
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
-#include <string>
+#include <SDL2/SDL_image.h>
+#include <vector>
+#include "Button.h"
+
+enum class MenuState{
+    MAIN_MENU,
+    OPTIONS_MENU,
+    HOW_TO_PLAY,
+    RULES,
+    STATS
+};
 
 class Menu{
 public:
     Menu(SDL_Renderer* renderer);
     ~Menu();
 
-    bool init();
     void render();
-    void handleEvents(bool& isRunning, bool& showMainMenu);
+    void handleEvent(SDL_Event& e);
+
+    bool isRunning() const;
+    bool isLeaveSelected() const;
+
+    MenuState getState() const;
 
 private:
     SDL_Renderer* renderer;
-    SDL_Texture* newGameButtonTexture;
-    SDL_Texture* optionsButtonTexture;
-    SDL_Texture* quitButtonTexture;
-    SDL_Texture* titleTexture;
+    SDL_Texture* backgroundTexture;
+    std::vector<Button*> mainMenuButtons;
+    std::vector<Button*> optionsMenuButtons;
+    bool running;
+    bool leaveSelected;
+    MenuState state;
 
-    SDL_Rect newGameButtonRect;
-    SDL_Rect optionsButtonRect;
-    SDL_Rect quitButtonRect;
-    SDL_Rect titleRect;
+    void initTitles();
+    SDL_Texture* TitleTexture;
+    SDL_Texture* loadTexture(const std::string& path);
 
-    void renderText(const char* text, TTF_Font* font, SDL_Color color, SDL_Texture** texture, SDL_Rect* rect, int x,
-                    int y);
-    std::string getProjectRoot();
+    void renderMainMenu();
+    void renderOptionsMenu();
+    void renderHowToPlay();
+    void renderRules();
+    void renderStats();
+
+    void handleMainMenuEvent(SDL_Event& e);
+    void handleOptionsMenuEvent(SDL_Event& e);
 };
 
 #endif
