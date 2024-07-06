@@ -9,6 +9,7 @@
 
 enum class MenuState{
     MAIN_MENU,
+    NEW_GAME,
     OPTIONS_MENU,
     HOW_TO_PLAY,
     RULES,
@@ -42,6 +43,7 @@ private:
     SDL_Texture* loadTexture(const std::string& path);
 
     void renderMainMenu();
+    void renderNewGame();
     void renderOptionsMenu();
     void renderHowToPlay();
     void renderRules();

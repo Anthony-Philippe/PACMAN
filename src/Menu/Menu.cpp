@@ -15,9 +15,9 @@ Menu::Menu(SDL_Renderer* renderer) : renderer(renderer), running(true), leaveSel
     mainMenuButtons.push_back(new Button(renderer, "options", w / 2 - 175, h / 2 + 200, 350, 50));
     mainMenuButtons.push_back(new Button(renderer, "quit", w - 175 - 65, h - 80, 125, 40));
 
-    optionsMenuButtons.push_back(new Button(renderer, "rules", w / 2 - 137, h / 2 + 100, 225, 45));
-    optionsMenuButtons.push_back(new Button(renderer, "settings", w / 2 - 150, h / 2 + 165, 250, 50));
-    optionsMenuButtons.push_back(new Button(renderer, "stats", w / 2 - 137, h / 2 + 235, 225, 45));
+    optionsMenuButtons.push_back(new Button(renderer, "rules", w / 2 - 137, h / 2 + 100, 225, 40));
+    optionsMenuButtons.push_back(new Button(renderer, "settings", w / 2 - 150, h / 2 + 165, 250, 40));
+    optionsMenuButtons.push_back(new Button(renderer, "stats", w / 2 - 137, h / 2 + 235, 225, 40));
     optionsMenuButtons.push_back(new Button(renderer, "back", w - 200, h - 80, 150, 40));
 
     TitleTexture = loadTexture("../assets/images/title.png");
@@ -58,6 +58,9 @@ void Menu::render(){
     switch (state){
     case MenuState::MAIN_MENU:
         renderMainMenu();
+        break;
+    case MenuState::NEW_GAME:
+        // renderNewGame();
         break;
     case MenuState::OPTIONS_MENU:
         renderOptionsMenu();
@@ -105,6 +108,10 @@ void Menu::renderMainMenu(){
     }
 }
 
+void Menu::renderNewGame(){
+    // Placeholder
+}
+
 void Menu::renderOptionsMenu(){
     for (auto button : optionsMenuButtons){
         button->render();
@@ -132,8 +139,7 @@ void Menu::handleMainMenuEvent(SDL_Event& e){
         SDL_GetMouseState(&x, &y);
 
         if (mainMenuButtons[0]->isClicked(x, y)){
-            // Start New Game
-            // Here you would transition to your game state
+            state = MenuState::NEW_GAME;
         }
         else if (mainMenuButtons[1]->isClicked(x, y)){
             state = MenuState::OPTIONS_MENU;
