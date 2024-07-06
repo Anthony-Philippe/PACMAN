@@ -15,6 +15,6 @@ find_library(SDL2_LIBRARY SDL2 HINTS ${SDL2_LOCAL_DIR}/lib)
 find_library(SDL2_IMAGE_LIBRARY SDL2_image HINTS ${SDL2_IMAGE_LOCAL_DIR}/lib)
 find_library(SDL2_TTF_LIBRARY SDL2_ttf HINTS ${SDL2_TTF_LOCAL_DIR}/lib)
 
-add_executable(PACMAN src/main.cpp src/Game/Game.cpp src/Menu/Menu.cpp src/Menu/Button.cpp)
+add_executable(PACMAN src/main.cpp src/Entity/Ghost.cpp)
 
 target_link_libraries(PACMAN ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${SDL2_TTF_LIBRARY})
