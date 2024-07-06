@@ -1,96 +1,181 @@
+// Menu.cpp
 #include "Menu.h"
-#include <iostream>
-#include <filesystem>
 
-Menu::Menu(SDL_Renderer* renderer) : renderer(renderer), newGameButtonTexture(nullptr), optionsButtonTexture(nullptr),
-                                     quitButtonTexture(nullptr), titleTexture(nullptr){}
+Menu::Menu(SDL_Renderer* renderer) : renderer(renderer), running(true), leaveSelected(false),
+                                     state(MenuState::MAIN_MENU){
+    backgroundTexture = loadTexture("../assets/images/background.jpg");
+    if (!backgroundTexture){
+        std::cerr << "Failed to load background texture!" << std::endl;
+        running = false;
+    }
 
-Menu::~Menu(){
-    if (newGameButtonTexture) SDL_DestroyTexture(newGameButtonTexture);
-    if (optionsButtonTexture) SDL_DestroyTexture(optionsButtonTexture);
-    if (quitButtonTexture) SDL_DestroyTexture(quitButtonTexture);
-    if (titleTexture) SDL_DestroyTexture(titleTexture);
+    constexpr int w = 1280, h = 720;
+
+    mainMenuButtons.push_back(new Button(renderer, "new game", w / 2 - 200, h / 2 + 125, 400, 50));
+    mainMenuButtons.push_back(new Button(renderer, "options", w / 2 - 175, h / 2 + 200, 350, 50));
+    mainMenuButtons.push_back(new Button(renderer, "quit", w - 175 - 65, h - 80, 125, 40));
+
+    optionsMenuButtons.push_back(new Button(renderer, "rules", w / 2 - 137, h / 2 + 100, 225, 45));
+    optionsMenuButtons.push_back(new Button(renderer, "settings", w / 2 - 150, h / 2 + 165, 250, 50));
+    optionsMenuButtons.push_back(new Button(renderer, "stats", w / 2 - 137, h / 2 + 235, 225, 45));
+    optionsMenuButtons.push_back(new Button(renderer, "back", w - 200, h - 80, 150, 40));
+
+    TitleTexture = loadTexture("../assets/images/title.png");
 }
 
-bool Menu::init(){
-    TTF_Font* font = TTF_OpenFont((getProjectRoot() + "/assets/fonts/namco.ttf").c_str(), 24);
-    if (!font){
-        std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
-        return false;
+Menu::~Menu(){
+    for (auto button : mainMenuButtons){
+        delete button;
     }
-
-    SDL_Color white = {255, 255, 255};
-
-    int windowWidth = 1366;
-    int windowHeight = 768;
-
-    renderText("new game", font, white, &newGameButtonTexture, &newGameButtonRect, windowWidth / 2,
-               windowHeight / 2);
-    renderText("options", font, white, &optionsButtonTexture, &optionsButtonRect, windowWidth / 2,
-               windowHeight / 2 + 50);
-    renderText("quit", font, white, &quitButtonTexture, &quitButtonRect, windowWidth / 2, windowHeight / 2 + 100);
-
-    TTF_CloseFont(font);
-
-    TTF_Font* titleFont = TTF_OpenFont((getProjectRoot() + "/assets/fonts/crackman.ttf").c_str(), 64);
-    if (!titleFont){
-        std::cerr << "Failed to load title font: " << TTF_GetError() << std::endl;
-        return false;
+    for (auto button : optionsMenuButtons){
+        delete button;
     }
+    SDL_DestroyTexture(TitleTexture);
+}
 
-    renderText("PAC-MAN", titleFont, white, &titleTexture, &titleRect, windowWidth / 2, 100);
-
-    TTF_CloseFont(titleFont);
-
-    return true;
+SDL_Texture* Menu::loadTexture(const std::string& path){
+    SDL_Surface* surface = IMG_Load(path.c_str());
+    if (!surface){
+        std::cerr << "Failed to load image: " << IMG_GetError() << std::endl;
+        return nullptr;
+    }
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+    return texture;
 }
 
 void Menu::render(){
-    SDL_RenderCopy(renderer, titleTexture, nullptr, &titleRect);
-    SDL_RenderCopy(renderer, newGameButtonTexture, nullptr, &newGameButtonRect);
-    SDL_RenderCopy(renderer, optionsButtonTexture, nullptr, &optionsButtonRect);
-    SDL_RenderCopy(renderer, quitButtonTexture, nullptr, &quitButtonRect);
+    SDL_RenderClear(renderer);
+    if (backgroundTexture){
+        SDL_RenderCopy(renderer, backgroundTexture, nullptr, nullptr);
+    }
+
+    if (TitleTexture){
+        SDL_Rect dstRect = {1280 / 2 - 275, 720 / 8, 550, 125};
+        SDL_RenderCopy(renderer, TitleTexture, nullptr, &dstRect);
+    }
+
+    switch (state){
+    case MenuState::MAIN_MENU:
+        renderMainMenu();
+        break;
+    case MenuState::OPTIONS_MENU:
+        renderOptionsMenu();
+        break;
+    case MenuState::HOW_TO_PLAY:
+        renderHowToPlay();
+        break;
+    case MenuState::RULES:
+        renderRules();
+        break;
+    case MenuState::STATS:
+        renderStats();
+        break;
+    }
+
+    SDL_RenderPresent(renderer);
 }
 
-void Menu::handleEvents(bool& isRunning, bool& showMainMenu){
-    SDL_Event event;
-    while (SDL_PollEvent(&event)){
-        if (event.type == SDL_QUIT){
-            isRunning = false;
-        }
-        if (event.type == SDL_MOUSEBUTTONDOWN){
+void Menu::handleEvent(SDL_Event& e){
+    switch (state){
+    case MenuState::MAIN_MENU:
+        handleMainMenuEvent(e);
+        break;
+    case MenuState::OPTIONS_MENU:
+        handleOptionsMenuEvent(e);
+        break;
+    case MenuState::HOW_TO_PLAY:
+    case MenuState::RULES:
+    case MenuState::STATS:
+        if (e.type == SDL_MOUSEBUTTONDOWN){
             int x, y;
             SDL_GetMouseState(&x, &y);
-            if (x >= newGameButtonRect.x && x <= newGameButtonRect.x + newGameButtonRect.w &&
-                y >= newGameButtonRect.y && y <= newGameButtonRect.y + newGameButtonRect.h){
-                std::cout << "New game button clicked" << std::endl;
-                // Logic for starting a new game
+
+            if (optionsMenuButtons[3]->isClicked(x, y)){
+                state = MenuState::OPTIONS_MENU;
             }
-            if (x >= optionsButtonRect.x && x <= optionsButtonRect.x + optionsButtonRect.w &&
-                y >= optionsButtonRect.y && y <= optionsButtonRect.y + optionsButtonRect.h){
-                std::cout << "Options button clicked" << std::endl;
-                showMainMenu = false; // Update to show the options menu
-            }
-            if (x >= quitButtonRect.x && x <= quitButtonRect.x + quitButtonRect.w &&
-                y >= quitButtonRect.y && y <= quitButtonRect.y + quitButtonRect.h){
-                std::cout << "Quit button clicked" << std::endl;
-                isRunning = false;
-            }
+        }
+        break;
+    }
+}
+
+void Menu::renderMainMenu(){
+    for (auto button : mainMenuButtons){
+        button->render();
+    }
+}
+
+void Menu::renderOptionsMenu(){
+    for (auto button : optionsMenuButtons){
+        button->render();
+    }
+}
+
+void Menu::renderHowToPlay(){
+    optionsMenuButtons[3]->render();
+}
+
+void Menu::renderRules(){
+    optionsMenuButtons[3]->render();
+}
+
+void Menu::renderStats(){
+    optionsMenuButtons[3]->render();
+}
+
+void Menu::handleMainMenuEvent(SDL_Event& e){
+    if (e.type == SDL_QUIT){
+        running = false;
+    }
+    else if (e.type == SDL_MOUSEBUTTONDOWN){
+        int x, y;
+        SDL_GetMouseState(&x, &y);
+
+        if (mainMenuButtons[0]->isClicked(x, y)){
+            // Start New Game
+            // Here you would transition to your game state
+        }
+        else if (mainMenuButtons[1]->isClicked(x, y)){
+            state = MenuState::OPTIONS_MENU;
+        }
+        else if (mainMenuButtons[2]->isClicked(x, y)){
+            leaveSelected = true;
+            running = false;
         }
     }
 }
 
-void Menu::renderText(const char* text, TTF_Font* font, SDL_Color color, SDL_Texture** texture, SDL_Rect* rect, int x,
-                      int y){
-    SDL_Surface* surface = TTF_RenderText_Solid(font, text, color);
-    *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    rect->w = surface->w;
-    rect->h = surface->h;
-    rect->x = x - rect->w / 2;
-    rect->y = y - rect->h / 2;
-    SDL_FreeSurface(surface);
+void Menu::handleOptionsMenuEvent(SDL_Event& e){
+    if (e.type == SDL_QUIT){
+        running = false;
+    }
+    else if (e.type == SDL_MOUSEBUTTONDOWN){
+        int x, y;
+        SDL_GetMouseState(&x, &y);
+
+        if (optionsMenuButtons[0]->isClicked(x, y)){
+            state = MenuState::HOW_TO_PLAY;
+        }
+        else if (optionsMenuButtons[1]->isClicked(x, y)){
+            state = MenuState::RULES;
+        }
+        else if (optionsMenuButtons[2]->isClicked(x, y)){
+            state = MenuState::STATS;
+        }
+        else if (optionsMenuButtons[3]->isClicked(x, y)){
+            state = MenuState::MAIN_MENU;
+        }
+    }
 }
 
-std::string Menu::getProjectRoot(){
-    return std::filesystem::current_path().parent_path().string();
+bool Menu::isRunning() const{
+    return running;
+}
+
+bool Menu::isLeaveSelected() const{
+    return leaveSelected;
+}
+
+MenuState Menu::getState() const{
+    return state;
 }
