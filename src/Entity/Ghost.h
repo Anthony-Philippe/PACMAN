@@ -7,9 +7,11 @@
 #include <random>
 #include <iostream>
 
+enum GhostType{ BLINKY, PINKY, INKY, CLYDE };
+
 class Ghost{
 public:
-    Ghost(SDL_Renderer* renderer, const std::string& texturePath, int x, int y, int ghostType);
+    Ghost(SDL_Renderer* renderer, const std::string& texturePath, int x, int y, GhostType type);
     ~Ghost();
 
     void render();
@@ -18,6 +20,7 @@ public:
 
 private:
     SDL_Texture* loadTexture(const std::string& path);
+    GhostType type;
     void updateTexture();
     void changeDirection();
 
@@ -28,7 +31,6 @@ private:
     int posX, posY;
     int velX, velY;
     int speed;
-    int ghostNumber;
 
     enum Direction{ RIGHT, LEFT, UP, DOWN } direction;
 

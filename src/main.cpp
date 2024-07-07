@@ -50,7 +50,7 @@ int main(){
         return -1;
     }
 
-    Ghost ghost(gRenderer, "../assets/sprites/spritesheet.png", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0);
+    Ghost ghost(gRenderer, "../assets/sprites/spritesheet.png", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, PINKY);
 
     bool quit = false;
     SDL_Event e;

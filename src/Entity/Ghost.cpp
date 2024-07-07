@@ -1,7 +1,7 @@
 #include "Ghost.h"
 
-Ghost::Ghost(SDL_Renderer* renderer, const std::string& texturePath, int x, int y, int ghostType)
-    : renderer(renderer), posX(x), posY(y), velX(0), velY(0), direction(UP), speed(2), ghostNumber(ghostType){
+Ghost::Ghost(SDL_Renderer* renderer, const std::string& texturePath, int x, int y, GhostType type)
+    : renderer(renderer), posX(x), posY(y), velX(0), velY(0), direction(UP), speed(2), type(type){
     std::random_device rd;
     mt = std::mt19937(rd());
     directionDistribution = std::uniform_int_distribution<int>(0, 3);
@@ -11,7 +11,7 @@ Ghost::Ghost(SDL_Renderer* renderer, const std::string& texturePath, int x, int 
         std::cerr << "Failed to load texture!" << std::endl;
     }
 
-    srcRect = {ghostNumber * 32, 64, 32, 32};
+    srcRect = {type * 32, 64, 32, 32};
     dstRect = {posX, posY, 32, 32};
 }
 
