@@ -50,8 +50,7 @@ int main(){
         return -1;
     }
 
-    // Créer un fantôme à une position initiale
-    Ghost ghost(gRenderer, "../assets/sprites/spritesheet.png", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+    Ghost ghost(gRenderer, "../assets/sprites/spritesheet.png", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0);
 
     bool quit = false;
     SDL_Event e;
@@ -63,20 +62,10 @@ int main(){
             }
         }
 
-        // Mettre à jour la direction du fantôme
-        ghost.updateDirection();
-
-        // Mettre à jour le mouvement du fantôme
         ghost.move();
-
-        // Effacer l'écran
         SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
         SDL_RenderClear(gRenderer);
-
-        // Rendre le fantôme
         ghost.render();
-
-        // Mettre à jour l'affichage
         SDL_RenderPresent(gRenderer);
     }
 

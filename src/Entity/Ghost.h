@@ -5,30 +5,35 @@
 #include <SDL2/SDL_image.h>
 #include <string>
 #include <random>
+#include <iostream>
 
 class Ghost{
 public:
-    Ghost(SDL_Renderer* renderer, const std::string& texturePath, int x, int y);
+    Ghost(SDL_Renderer* renderer, const std::string& texturePath, int x, int y, int ghostType);
     ~Ghost();
 
-    void move();
-    void updateDirection();
     void render();
+    void move();
+    void setSpeed(int speed);
 
 private:
+    SDL_Texture* loadTexture(const std::string& path);
+    void updateTexture();
+    void changeDirection();
+
     SDL_Renderer* renderer;
     SDL_Texture* texture;
-    SDL_Rect srcRect;
-    SDL_Rect dstRect;
+    SDL_Rect srcRect, dstRect;
 
     int posX, posY;
     int velX, velY;
+    int speed;
+    int ghostNumber;
 
-    int currentDirection;
-    int changeDirectionTimer;
-    std::random_device rd;
-    std::mt19937 gen;
-    std::uniform_int_distribution<> dis;
+    enum Direction{ RIGHT, LEFT, UP, DOWN } direction;
+
+    std::mt19937 mt;
+    std::uniform_int_distribution<int> directionDistribution;
 };
 
 #endif // GHOST_H
